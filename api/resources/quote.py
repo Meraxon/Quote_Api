@@ -20,8 +20,8 @@ class QuoteResource(Resource):
             quotes = author.quotes.all()
             return [quote.to_dict() for quote in quotes], 200  # Возвращаем все цитаты автора
 
-        quote = QuoteModel.query.get(id)
-        if quote is None:
+        quote = QuoteModel.query.get(quote_id)
+        if quote:
             return quote.to_dict(), 200
         return {"Error": "Quote not found"}, 404
 
