@@ -11,16 +11,17 @@ class AuthorResource(Resource):
             return f"Author id={author_id} not found", 404
         return author.to_dict(), 200
 
-    def put(self, author_id):
-        parser = reqparse.RequestParser()
-        parser.add_argument("name", required=True)
-        author_data = parser.parse_args()
-        author = AuthorModel.query.get(author_id)
-        if author is None:
-            return {"Error": f"Author id={author_id} not found"}, 404
-        author.name = author_data["name"]
-        db.session.commit()
-        return author.to_dict(), 200
+
+def put(self, author_id):
+    parser = reqparse.RequestParser()
+    parser.add_argument("name", required=True)
+    author_data = parser.parse_args()
+    author = AuthorModel.query.get(author_id)
+    if author is None:
+        return {"Error": f"Author id={author_id} not found"}, 404
+    author.name = author_data["name"]
+    db.session.commit()
+    return author.to_dict(), 200
 
     def delete(self, quote_id):
         raise NotImplemented("Метод не реализован")

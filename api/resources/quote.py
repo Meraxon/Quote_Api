@@ -5,13 +5,7 @@ from api.models.quote import QuoteModel
 
 # /authors/<int:author_id>/quotes/<int:quote_id>
 class QuoteResource(Resource):
-    def get(self, author_id=None, quote_id=None):
-        """
-        Обрабатываем GET запросы
-        :param author_id: id автора
-        :param quote_id: id цитаты
-        :return: http-response(json, статус)
-        """
+    def get(self, author_id, quote_id):
         quote = QuoteModel.query.get(quote_id)
         if quote:
             return quote.to_dict(), 200
@@ -29,17 +23,22 @@ class QuoteResource(Resource):
         db.session.commit()
         return quote.to_dict(), 200
 
-    def delete(self, quote_id):
+    def delete(self, author_id=None, quote_id=None):
+        author = AuthorModel.query.get(author_id)
         quote = QuoteModel.query.get(quote_id)
-        if quote:
-            quote.delete(), 200
-        return {"Error": "Quote not found"}, 404
+        if author is None:
+            return {"Error": f"Author with id = {author_id} not found"}, 404
+        elif quote is None:
+            return {"Error": f"Quote with id = {quote_id} not found"}, 404
+        db.session.delete(quote)
+        db.session.commit()
+        return f"{author.name}'s quote with id={quote_id} is deleted.", 200
 
 
 # /authors/<int:author_id>/quotes
-# /quote
+# /quotes
 class QuoteListResource(Resource):
-    def get(self, author_id):
+    def get(self, author_id=None):
         if author_id is None:  # Если запрос приходит по url: /quotes
             quotes = QuoteModel.query.all()
             return [quote.to_dict() for quote in quotes], 200  # Возвращаем ВСЕ цитаты
@@ -53,7 +52,7 @@ class QuoteListResource(Resource):
         parser.add_argument("text", required=True)
         quote_data = parser.parse_args()
         # TODO: раскомментируйте строку ниже, чтобы посмотреть quote_data
-        #   print(f"{quote_data=}")
+        # print(f"{quote_data=}")
         author = AuthorModel.query.get(author_id)
         if author is None:
             return {"Error": f"Author id={author_id} not found"}, 404
